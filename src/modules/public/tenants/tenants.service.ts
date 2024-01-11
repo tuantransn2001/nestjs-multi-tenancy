@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { EntityRepository, MikroORM } from '@mikro-orm/core';
+import { EntityRepository } from '@mikro-orm/core';
 import { Tenant } from './tenant.entity';
 import { CreateTenantsDto } from '../dto/create-tenant.dto';
 import { EntityManager } from '@mikro-orm/core';
+import { getTenantConnection } from 'src/modules/tenancy/tenancy.ultils';
 
 @Injectable()
 export class TenantsService {
@@ -11,7 +12,6 @@ export class TenantsService {
     @InjectRepository(Tenant)
     private readonly tenantsRepository: EntityRepository<Tenant>,
     private readonly em: EntityManager,
-    private readonly orm: MikroORM,
   ) {}
 
   public async create(createTenantsDto: CreateTenantsDto): Promise<Tenant> {
@@ -27,18 +27,14 @@ export class TenantsService {
     const sql = `CREATE SCHEMA IF NOT EXISTS ${schemaName};`;
     await this.em.getConnection().execute(sql);
 
-    const connection = this.em.fork();
+    const connection = await getTenantConnection(tenant.id);
 
-    connection.config.set('dbName', schemaName);
+    await connection.getMigrator().up();
 
-    await this.orm.getMigrator().up();
-    console.log({ connection });
     return tenant;
   }
 
   public async findAll() {
-    return {
-      message: 'test',
-    };
+    return {};
   }
 }

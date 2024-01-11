@@ -23,6 +23,5 @@ export async function getTenantConnection(tenantId: string) {
   });
 
   connections.set(connectionName, orm);
-
   return orm;
 }
