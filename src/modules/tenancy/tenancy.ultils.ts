@@ -1,9 +1,9 @@
 import { MikroORM } from '@mikro-orm/core';
-import { tenantsOrmConfig } from '../../../tenent-orm.config';
+import { tenantsOrmConfig } from '../../../tenant-orm.config';
 
 const connections = new Map<string, MikroORM>();
 
-export async function getTenantConnection(tenantId: string) {
+export async function getTenantConnection(tenantId: string): Promise<MikroORM> {
   const connectionName = `tenant_${tenantId}`;
 
   if (connections.has(connectionName)) {
@@ -17,11 +17,12 @@ export async function getTenantConnection(tenantId: string) {
   }
 
   const orm = await MikroORM.init({
-    ...(tenantsOrmConfig as any),
+    ...tenantsOrmConfig,
     dbName: connectionName,
     schema: connectionName,
   });
 
   connections.set(connectionName, orm);
+
   return orm;
 }

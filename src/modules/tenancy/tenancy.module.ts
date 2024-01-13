@@ -10,9 +10,9 @@ const connectionFactory = {
   useFactory: (request: Request) => {
     const tenantId = request['tenantId'];
 
-    if (tenantId) return getTenantConnection(tenantId);
+    if (!tenantId) return null;
 
-    return null;
+    return getTenantConnection(tenantId);
   },
   inject: [REQUEST],
 };
